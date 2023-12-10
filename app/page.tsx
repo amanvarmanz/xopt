@@ -1,95 +1,55 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import React, { useState } from 'react'
+import { MantineProvider, Select, TextInput, Table, Button, Text, Image } from '@mantine/core'
+import '@mantine/core/styles.css';
+import * as Constants from './utilities/constants';
+import { ProductTable } from './components/product-table/product-table';
+import { AllProducts, Product } from './utilities/types';
+import ProductForm from './components/product-form/product-form';
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+  const [productTitle, setProductTitle] = useState<string>(Constants.emptyString)
+  const [sources, setSources] = useState<string[]>(Constants.sourceList)
+  const [allProducts, setAllProducts] = useState<AllProducts>([])
+  const [productSource, setProductSource] = useState<string>(Constants.emptyString)
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+  const handleProductTitleChange = (title : string) => {
+    setProductTitle(title)
+  }
+
+  const handleProductSourceChange = (source: string | null) => {
+    setProductSource(source === null ? Constants.emptyString : source)
+  }
+
+  const addNewProduct = () => {
+    const newProduct : Product = {title: productTitle, source: productSource}
+    setAllProducts((products : AllProducts) => [...products, newProduct])
+    setProductTitle(Constants.emptyString)
+  }
+
+  const deleteProduct = (index: number) => {
+    let copyProductDefinitions = [...allProducts]
+    copyProductDefinitions.splice(index, 1)
+    setAllProducts(copyProductDefinitions)
+  }
+
+  return (
+    <MantineProvider>
+      <div className='container'>
+        <ProductForm
+          productTitle={productTitle}
+          productSource={productSource}
+          sources={sources}
+          handleProductTitleChange={handleProductTitleChange}
+          handleProductSourceChange={handleProductSourceChange}
+          addNewProduct={addNewProduct}
+        />
+        <ProductTable
+          allProducts={allProducts}
+          addNewProduct={addNewProduct}
+          deleteProduct={deleteProduct} 
         />
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </MantineProvider>
   )
 }
